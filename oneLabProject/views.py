@@ -1,15 +1,5 @@
-import math
-import os
-import ssl
-from pathlib import Path
-from urllib import request
 
-import joblib
-import numpy as np
-import requests
-from django.core.paginator import Paginator, EmptyPage
-from django.http import JsonResponse
-from sklearn.metrics.pairwise import cosine_similarity
+import ssl
 from rest_framework.test import  APIRequestFactory
 from ai.views import GetRecommendationsAPIView
 from community.models import Community
@@ -18,123 +8,52 @@ from exhibition.models import Exhibition
 from django.db.models import Q, Sum
 from member.models import MemberFile, Member
 from member.serializers import MemberSerializer
-from onelab.models import OneLab
+
 from place.models import Place
-from school.models import School
-from django.shortcuts import render
-from django.views import View
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.http import JsonResponse
-import os.path
-from pathlib import Path
-import joblib
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from onelab.models import OneLab
+
 from member.models import Member
-from tag.models import Tag
 
 
 from share.models import Share
-from visitRecord.models import VisitRecord
+
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-from django.shortcuts import render, redirect
-from django.views import View
-from rest_framework.response import Response
-
-from django.shortcuts import render
-from django.views import View
-from django.utils import timezone
-from onelab.models import OneLab
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import joblib
-from pathlib import Path
-import os
-
-# views.py
-
-import math
-import os
 import ssl
-from pathlib import Path
-import joblib
-import numpy as np
-from django.shortcuts import render
-from django.views import View
+
 from django.utils import timezone
-from onelab.models import OneLab
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+
 from visitRecord.models import VisitRecord
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from pathlib import Path
-import joblib
-import os
-
-import random
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from pathlib import Path
-import joblib
-import os
-
-from django.shortcuts import render
-from django.views import View
-
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-from pathlib import Path
-import numpy as np
-import random
-import os
-
-
 
 
 from django.shortcuts import render
 from django.views import View
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
 
 
 class MainView(View):
     def get(self, request):
         member_id = request.session.get('member', {}).get('id')
-        if member_id is None:
-            print('회원 ID 없음')
-            recommended_onelabs = []
-        else:
+        recommended_onelabs = []
+
+        if member_id:
             # REST API를 통해 추천 원랩 가져오기
             api_view = GetRecommendationsAPIView.as_view()
             factory = APIRequestFactory()
             api_request = factory.get('/api/recommendations/', {'member_id': member_id})
             api_response = api_view(api_request)
             if api_response.status_code == 200:
-                recommended_onelabs = api_response.data['recommended_onelabs']
-            else:
-                recommended_onelabs = []
+                recommended_onelabs = api_response.data.get('recommended_onelabs', [])
 
         # 장소 정보 가져오기
-        places = Place.objects.all()
+        places = Place.objects.all().select_related('school')
         place_info = {
-            'places': []
-        }
-        for place in places:
-            place_files = list(place.placefile_set.values('path'))
-            place_info['places'].append({
-                'files': place_files,
+            'places': [{
+                'files': list(place.placefile_set.values('path')),
                 'place_title': place.place_title,
                 'place_address': place.school.school_member_address,
                 'place_points': place.place_points,
@@ -142,31 +61,25 @@ class MainView(View):
                 'place_id': place.id,
                 'school_name': place.school.school_name,
                 'created_date': place.created_date,
-            })
+            } for place in places]
+        }
 
         # 전시 정보 가져오기
         exhibitions = Exhibition.objects.all()
         exhibition_info = {
-            'exhibitions': []
-        }
-        for exhibition in exhibitions:
-            exhibition_files = list(exhibition.exhibitionfile_set.values('path'))
-            exhibition_info['exhibitions'].append({
-                'files': exhibition_files,
+            'exhibitions': [{
+                'files': list(exhibition.exhibitionfile_set.values('path')),
                 'exhibition_title': exhibition.exhibition_title,
                 'exhibition_content': exhibition.exhibition_content,
                 'exhibition_status': exhibition.exhibition_status,
-            })
+            } for exhibition in exhibitions]
+        }
 
         # 공유 정보 가져오기
         shares = Share.objects.all()
         share_info = {
-            'shares': []
-        }
-        for share in shares:
-            share_files = list(share.sharefile_set.values('path'))
-            share_info['shares'].append({
-                'files': share_files,
+            'shares': [{
+                'files': list(share.sharefile_set.values('path')),
                 'id': share.id,
                 'share_title': share.share_title,
                 'share_content': share.share_content,
@@ -176,89 +89,48 @@ class MainView(View):
                 'share_text_major': share.share_text_major,
                 'share_text_name': share.share_text_name,
                 'share_choice_grade': share.share_choice_grade,
-            })
+            } for share in shares]
+        }
 
         # 커뮤니티 정보 가져오기
         communities = Community.objects.all()
         communities_info = {
-            'communities' : []
-        }
-        for community in communities:
-            community_files = list(community.files.values('path'))
-            communities_info['communities'].append({
-                'files': community_files,
+            'communities': [{
+                'files': list(community.files.values('path')),
                 'id': community.id,
                 'community_title': community.community_title,
                 'community_content': community.community_content,
                 'post_status': community.post_status,
                 'status': community.status
-            })
+            } for community in communities]
+        }
 
-            # 방문자 기록
-            visit_record, created = VisitRecord.objects.get_or_create(date=timezone.now().date())
-            if created:
-                visit_record.count = 1
-            else:
-                visit_record.count += 1
-            visit_record.save()
+        # 방문자 기록
+        visit_record, created = VisitRecord.objects.get_or_create(date=timezone.now().date())
+        visit_record.count = visit_record.count + 1
+        visit_record.save()
 
-            # 멤버쪽
-            member_id = request.session.get('member', {}).get('id')
-            default_profile_url = 'https://static.wadiz.kr/assets/icon/profile-icon-1.png'
-
-            if member_id is None:
-                profile = default_profile_url
-                context = {
-                    'places': place_info['places'],
-                    'exhibitions': exhibition_info['exhibitions'],
-                    'shares': share_info['shares'],
-                    'onelabs': recommended_onelabs,
-                    'communities': communities_info['communities'],
-                    'profile': profile,
-                }
-                return render(request, 'main/main-page.html', context)
-            else:
-                request.session['member_name'] = MemberSerializer(
-                    Member.objects.get(id=request.session['member']['id'])).data
-                member = request.session['member']['id']
-                profile = MemberFile.objects.filter(member_id=member).first()
-                if profile is not None:
-                    context = {
-                        'places': place_info['places'],
-                        'exhibitions': exhibition_info['exhibitions'],
-                        'shares': share_info['shares'],
-                        'onelabs': recommended_onelabs,
-                        'communities': communities_info['communities'],
-                        'profile': profile,
-                    }
-                    return render(request, 'main/main-page.html', context)
-
-                # Member.objects.create(**data)
-                else:
+        # 멤버쪽
+        profile = default_profile_url = 'https://static.wadiz.kr/assets/icon/profile-icon-1.png'
+        if member_id:
+            member = Member.objects.filter(id=member_id).first()
+            if member:
+                request.session['member_name'] = MemberSerializer(member).data
+                profile = MemberFile.objects.filter(member_id=member_id).first()
+                if profile is None:
                     profile = default_profile_url
-                    context = {
-                        'places': place_info['places'],
-                        'exhibitions': exhibition_info['exhibitions'],
-                        'shares': share_info['shares'],
-                        'onelabs': recommended_onelabs,
-                        'communities': communities_info['communities'],
-                        'profile': profile,
-                    }
-                    return render(request, 'main/main-page.html', context)
 
-            # context1 = {
-            #         'places': place_info['places'],
-            #         'exhibitions': exhibition_info['exhibitions'],
-            #         'shares': share_info['shares'],
-            #         'onelabs': recommended_onelabs,
-            #         'communities': communities_info['communities'],
-            # }
+        context = {
+            'places': place_info['places'],
+            'exhibitions': exhibition_info['exhibitions'],
+            'shares': share_info['shares'],
+            'onelabs': recommended_onelabs,  # 여기서 원랩 데이터가 필요하다면 유지됩니다.
+            'communities': communities_info['communities'],
+            'profile': profile,
+        }
 
-        return render(request, 'main/main-page.html', {'places': place_info['places'],
-                    'exhibitions': exhibition_info['exhibitions'],
-                    'shares': share_info['shares'],
-                    'onelabs': recommended_onelabs,
-                    'communities': communities_info['communities']})
+        return render(request, 'main/main-page.html', context)
+
 
 
 

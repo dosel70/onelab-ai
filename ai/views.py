@@ -23,7 +23,7 @@ class GetRecommendationsAPIView(APIView):
         model_path = os.path.join(Path(__file__).resolve().parent, 'test_onelab.pkl')
         with open(model_path, 'rb') as f:
             model = joblib.load(f)
-            print(f'피클 잘 불러옴: {model}')
+            # print(f'피클 잘 불러옴: {model}')
 
         onelabs = list(OneLab.objects.filter(tag__tag_name=member_tag))
         onelabs_list = [f"{onelab.onelab_main_title} {onelab.onelab_content} {onelab.onelab_detail_content}" for onelab in onelabs]
@@ -32,17 +32,17 @@ class GetRecommendationsAPIView(APIView):
         similarity_matrix = cosine_similarity(content_vectors)
         mean_similarity_scores = np.mean(similarity_matrix, axis=1)
 
-        print(f'평균 유사도 점수 : {mean_similarity_scores}')
+        # print(f'평균 유사도 점수 : {mean_similarity_scores}')
 
         max_similarity_index = np.argmax(mean_similarity_scores)
-        print(f'가장 높은 평균 유사도 점수를 가진 OneLab 객체의 인덱스 : {max_similarity_index}')
+        # print(f'가장 높은 평균 유사도 점수를 가진 OneLab 객체의 인덱스 : {max_similarity_index}')
         return max_similarity_index, content_vectors
 
     def recommend_similar_onelabs(self, member_tag, content_vectors, num_recommendations=3):
         max_similarity_index, _ = self.get_index_from_member_tag(member_tag)
         similarity_scores = cosine_similarity(content_vectors[max_similarity_index], content_vectors)
         similar_onelab_indices = similarity_scores.argsort()[0]
-        print(f'유사도가 높은 순으로 정렬된 인덱스 배열 {similar_onelab_indices}')
+        # print(f'유사도가 높은 순으로 정렬된 인덱스 배열 {similar_onelab_indices}')
         recommended_onelabs = []
         for idx in similar_onelab_indices[::-1]:
             if len(recommended_onelabs) == num_recommendations:
@@ -117,13 +117,13 @@ class PredictAPIView(APIView):
             model_path = os.path.join(Path(__file__).resolve().parent, 'test_onelab.pkl')
             with open(model_path, 'rb') as f:
                 model = joblib.load(f)
-                print(f'피클 잘 불러옴: {model}')
+                # print(f'피클 잘 불러옴: {model}')
 
             predictions = model.predict(datas.reshape(-1, 4))
             probabilities = model.predict_proba(datas.reshape(-1, 4))
 
-            print(f'{predictions}')
-            print(f'{probabilities}')
+            # print(f'{predictions}')
+            # print(f'{probabilities}')
 
             return Response({
                 'predictions': predictions.tolist(),
