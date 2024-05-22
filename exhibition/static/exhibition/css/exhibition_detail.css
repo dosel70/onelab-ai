@@ -1076,15 +1076,94 @@ button.comment-ok-btn.active {
 }
 
 /* AI 추천 공모전 섹션 스타일 */
-.rc-name {
-    font-family: inherit;
-    margin-top: 20px;
-    margin-left: 385px;
+.SearchResult_cardContainer > div {
+  width: 100%;
 }
 
-.rc-list-card {
-    margin-top: 20px;
-    margin-left: 20px;
-    background-color: #0f0f0f;
-    color: red;
+.SearchResult_cardContainer .SearchResult_table {
+  width: 100%;
+}
+
+.SearchResult_cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 20px;
+    justify-content: center; /* 가운데 정렬 */
+    align-items: flex-start;
+}
+
+.css-1pulbqw {
+    position: relative;
+    width: 237px;
+    height: 360px;
+    overflow: hidden;
+    border: none; /* 테두리 제거 */
+    border-radius: 10px;
+    background-color: #f0f0f0; /* 확인을 위해 배경색 추가, 필요시 제거 */
+    margin: 0; /* 여백 제거 */
+    padding: 0; /* 여백 제거 */
+}
+
+.css-3xk0il {
+    width: 237px;
+    height: 360px;
+    margin-bottom: 16px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    border: none; /* 테두리 제거 */
+    border-radius: 10px;
+    transition: all 0.2s ease-in-out 0s;
+    cursor: pointer;
+}
+
+.css-qn01ot {
+    width: 237px;
+    height: 360px;
+    position: absolute;
+    left: 0px;
+    padding: 45px 22px 0px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 0px 0px 10px 10px;
+    bottom: -180px;
+    transition: all 0.2s ease-in-out 0s;
+    transform: translate(0px, 0px);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+}
+
+.list-active {
+    width: 237px;
+    height: 360px;
+    position: absolute;
+    left: 0px;
+    padding: 30px 22px 0px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 0px 0px 10px 10px;
+    bottom: -180px;
+    transition: all 0.2s ease-in-out 0s;
+    transform: translate(0px, -180px);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+}
+
+.css-18m1pdx {
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.css-ivvewn {
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    font-weight: 500;
+    display: none;
+}
+
+.rc-title {
+    margin: 15px;
+    text-align: center;
+    padding: 20px;
 }

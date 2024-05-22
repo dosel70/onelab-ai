@@ -25,54 +25,46 @@ lists.forEach((list) => {
     });
 });
 
-// // 무한 스크롤
-//
-// let page = 1;
-// const exhibitionList = document.getElementById('exhibition-list');
-// let isLoading = false;
-//
-// window.addEventListener('scroll', () => {
-//     console.log('Scroll event detected'); // 스크롤 이벤트 감지 로그
-//     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 100) && !isLoading) {
-//         console.log('Near bottom of page'); // 페이지 하단 감지 로그
-//         isLoading = true;
-//         page++;
-//         fetch(`?page=${page}`, {
-//             headers: {
-//                 'X-Requested-With': 'XMLHttpRequest'
-//             }
-//         })
-//         .then(response => {
-//             console.log('Response received'); // 응답 수신 로그
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             console.log('Loaded data:', data); // 데이터 로드 확인 로그
-//             data.exhibitions.forEach(exhibition => {
-//                 const exhibitionElement = document.createElement('a');
-//                 exhibitionElement.href = exhibition.url;
-//                 exhibitionElement.innerHTML = `
-//                     <div class="swiper-slide swiper-slide-active" style="width: 236.8px; margin-right: 24px">
-//                         <div class="css-1pulbqw">
-//                             <div class="css-3xk0il">
-//                                 <img src="/upload/${exhibition.image}" class="preview">
-//                             </div>
-//                             <div class="css-qn01ot">
-//                                 <div class="css-18m1pdx">${exhibition.title}</div>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 `;
-//                 exhibitionList.appendChild(exhibitionElement);
-//             });
-//             isLoading = false;
-//         })
-//         .catch(error => {
-//             console.error('Error loading data:', error); // 오류 로드 확인 로그
-//             isLoading = false;
-//         });
-//     }
-// });
+
+// 페이지네이션
+
+let currentRangeStart = 1;
+
+function changePageRange(direction) {
+    const rangeSize = 10;
+    const totalPages = parseInt(document.getElementById('total-pages').innerText, 10);
+
+    currentRangeStart += direction * rangeSize;
+    if (currentRangeStart < 1) {
+        currentRangeStart = 1;
+    } else if (currentRangeStart > totalPages) {
+        currentRangeStart = totalPages - (totalPages % rangeSize) + 1;
+    }
+    renderPaginationButtons(totalPages, currentRangeStart);
+}
+
+function renderPaginationButtons(totalPages, currentPage) {
+    const rangeSize = 10;
+    const paginationButtons = document.getElementById('pagination-buttons');
+    paginationButtons.innerHTML = '';
+
+    const currentRangeEnd = Math.min(currentRangeStart + rangeSize - 1, totalPages);
+    for (let i = currentRangeStart; i <= currentRangeEnd; i++) {
+        const pageLink = document.createElement('a');
+        pageLink.href = `?page=${i}`;
+        pageLink.innerText = i;
+        if (i === currentPage) {
+            pageLink.classList.add('current');
+        }
+        paginationButtons.appendChild(pageLink);
+    }
+
+    document.getElementById('prev-btn').style.display = currentRangeStart > 1 ? 'inline' : 'none';
+    document.getElementById('next-btn').style.display = currentRangeEnd < totalPages ? 'inline' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const totalPages = parseInt(document.getElementById('total-pages').innerText, 10);
+    const currentPage = parseInt(document.getElementById('current-page').innerText, 10);
+    renderPaginationButtons(totalPages, currentPage);
+});

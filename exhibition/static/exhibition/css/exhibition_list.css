@@ -868,3 +868,37 @@ video {
     font-weight: 500;
     display: none;
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.pagination .step-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;  /* Align items to the center */
+}
+
+.pagination .step-links a,
+.pagination .step-links .current {
+    font-weight: 600; /* 살짝 얇게 설정 */
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #333;
+    line-height: 1.5; /* Adjust line-height to match heights */
+    vertical-align: middle; /* Align text vertically in the middle */
+    text-align: center;  /* Center-align the text */
+    min-width: 32px;  /* Set a minimum width for consistency */
+    font-family: Arial, sans-serif; /* Set font-family to ensure consistent height */
+}
+
+.pagination .step-links .current {
+    font-weight: bold;
+}
+
+.pagination .step-links a:hover {
+    background-color: #f0f0f0;
+}
